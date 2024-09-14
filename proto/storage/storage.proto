@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+package storage;
+
+option go_package = "kamal.storage.v1;storage1";
+
+
+service Item {
+  rpc GetItemById(GetItemRequest) returns (GetItemResponse);
+
+  rpc DeleteItem(DeleteItemRequest) returns (DeleteItemResponse);
+
+  rpc UpdateItem(UpdateItemRequest) returns (UpdateItemResponse);
+
+  rpc CreateItem(CreateItemRequest) returns (CreateItemResponse);
+}
+
+message GetItemRequest {
+  int64 id = 1;
+}
+
+message GetItemResponse {
+  int64 id = 1;
+  string name = 2;
+  string description = 3;
+  int32 quantity = 4;
+  float price = 5;
+  string currency = 6;
+  // int64 category = 7;
+}
+
+message DeleteItemRequest {
+  int64 id = 1;
+}
+
+message DeleteItemResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message UpdateItemRequest {
+  int64 id = 1;
+  optional string name = 2;
+  optional string description = 3;
+  optional int32 quantity = 4;
+  optional float price = 5;
+  optional string currency = 6;
+}
+
+message UpdateItemResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message CreateItemRequest {
+  string name = 2;
+  optional string description = 3;
+  optional int32 quantity = 4;
+  optional float price = 5;
+  optional string currency = 6;
+}
+
+message CreateItemResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+service Storage {
+  rpc NewOrder (OrderRequest) returns (OrderResponse);
+
+  rpc CancelOrder (CancelOrderRequest) returns (CancelOrderResponse);
+}
+
+message OrderRequest {
+  int64 order_id = 1;
+}
+
+message OrderResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message CancelOrderRequest {
+  int64 order_id = 1;
+}
+
+message CancelOrderResponse {
+  bool success = 1;
+  string message = 2;
+}
+
