@@ -92,10 +92,36 @@ func (s *serverApi) UpdateItem(ctx context.Context, req *storage1.UpdateItemRequ
 
 	return &storage1.UpdateItemResponse{
 		Success: true,
-		Message: fmt.Sprintf("succesfully update product with id %d", req.GetId()),
+		Message: fmt.Sprintf("succesfully updated product with id %d", req.GetId()),
 	}, nil
 }
 
 func (s *serverApi) CreateItem(ctx context.Context, req *storage1.CreateItemRequest) (*storage1.CreateItemResponse, error) {
-	return nil, nil
+	if req.Name == "" {
+		return nil, status.Error(codes.InvalidArgument, "cannot create product without name")
+	}
+
+	var opts []models.OptionFunc
+
+	if req.Description != nil {
+		opts = append(opts, models.SetDesc(req.GetDescription()))
+	}
+
+	if req.Currency != nil {
+		opts = append(opts, models.SetCurrency(req.GetCurrency()))
+	}
+
+	if req.Price != nil {
+		opts = append(opts, models.SetPrice(req.GetPrice()))
+	}
+
+	if req.Quantity != nil {
+		opts = append(opts, models.SetQuantity(req.GetQuantity()))
+	}
+
+	if err := s.item.CreateItem(ctx, opts...); err != nil {
+		return nil, status.Error(codes.Internal, "failed to create item")
+	}
+
+	return &storage1.CreateItemResponse{Success: true, Message: "successfully created new item"}, nil
 }

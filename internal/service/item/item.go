@@ -70,7 +70,15 @@ func (i *Item) UpdateItem(ctx context.Context, itemId int64, opts ...models.Opti
 
 	l.Info("update item request")
 
-	if err := i.repo.UpdateItemById(ctx, dto.UpdateItem{}); err != nil {
+	r := dto.NewUpdateItem(item.ID).
+		SetDesc(item.Desc).
+		SetPrice(item.Price).
+		SetQuantity(item.Quantity).
+		SetCurrency(item.Currency).
+		SetName(item.Name)
+
+	if err := i.repo.UpdateItemById(ctx, *r); err != nil {
+		l.Error("error while updating item by id", logger.Err(err))
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -80,11 +88,36 @@ func (i *Item) UpdateItem(ctx context.Context, itemId int64, opts ...models.Opti
 func (i *Item) DeleteItemById(ctx context.Context, itemId int64) error {
 	const op = "item.DeleteItemById"
 
+	l := i.log.With(
+		slog.String("op", op),
+		slog.Int64("item_id", itemId),
+	)
+
+	l.Info("delete item request")
+
+	if err := i.repo.DeleteItem(ctx, itemId); err != nil {
+		l.Error("Error while deleting item", logger.Err(err))
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
 	return nil
 }
 
 func (i *Item) GetItemById(ctx context.Context, itemId int64) (models.Item, error) {
 	const op = "item.GetItemById"
 
-	return models.Item{}, nil
+	l := i.log.With(
+		slog.String("op", op),
+		slog.Int64("item_id", itemId),
+	)
+
+	l.Info("get item by id request")
+
+	res, err := i.repo.GetItemById(ctx, itemId)
+	if err != nil {
+		l.Error("error while getting item by id", logger.Err(err))
+		return models.Item{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return *res, nil
 }
