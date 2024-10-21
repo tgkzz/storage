@@ -2,90 +2,75 @@ syntax = "proto3";
 
 package storage;
 
+import "google/protobuf/empty.proto";
+
 option go_package = "kamal.storage.v1;storage1";
 
-
-service Item {
-  rpc GetItemById(GetItemRequest) returns (GetItemResponse);
-
-  rpc DeleteItem(DeleteItemRequest) returns (DeleteItemResponse);
-
-  rpc UpdateItem(UpdateItemRequest) returns (UpdateItemResponse);
-
-  rpc CreateItem(CreateItemRequest) returns (CreateItemResponse);
+message Err {
+  string message = 1;
 }
 
-message GetItemRequest {
-  int64 id = 1;
-}
-
-message GetItemResponse {
-  int64 id = 1;
+message Item {
+  int32 id = 1;
   string name = 2;
-  string description = 3;
-  int32 quantity = 4;
-  float price = 5;
-  string currency = 6;
-  // int64 category = 7;
+  int32 quantity = 3;
+  Price price = 4;
 }
 
-message DeleteItemRequest {
-  int64 id = 1;
+message Price {
+  int32 currency = 1;
+  float price = 2;
 }
 
-message DeleteItemResponse {
-  bool success = 1;
-  string message = 2;
-}
-
-message UpdateItemRequest {
-  int64 id = 1;
-  optional string name = 2;
-  optional string description = 3;
-  optional int32 quantity = 4;
-  optional float price = 5;
-  optional string currency = 6;
-}
-
-message UpdateItemResponse {
-  bool success = 1;
-  string message = 2;
+service Items {
+  rpc CreateItem(CreateItemRequest) returns (google.protobuf.Empty);
+  rpc GetItemById(GetItemByIdRequest) returns (GetItemByIdResponse);
+  rpc DeleteItemById(DeleteItemByIdRequest) returns (google.protobuf.Empty);
 }
 
 message CreateItemRequest {
-  string name = 2;
-  optional string description = 3;
-  optional int32 quantity = 4;
-  optional float price = 5;
-  optional string currency = 6;
+  Item item = 1;
 }
 
-message CreateItemResponse {
-  bool success = 1;
-  string message = 2;
+message GetItemByIdRequest {
+  string id = 1;
+}
+
+message GetItemByIdResponse {
+  Item item = 1;
+}
+
+message DeleteItemByIdRequest {
+  string id = 1;
 }
 
 service Storage {
-  rpc NewOrder (OrderRequest) returns (OrderResponse);
-
-  rpc CancelOrder (CancelOrderRequest) returns (CancelOrderResponse);
+  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
+  rpc CancelOrder(CancelOrderRequest) returns (CancelOrderResponse);
 }
 
-message OrderRequest {
-  int64 order_id = 1;
+message Response {
+  string status = 1;
+  Err err = 2;
 }
 
-message OrderResponse {
-  bool success = 1;
-  string message = 2;
+message CreateOrderRequest {
+  repeated Item items = 1;
+  string username = 2;
+}
+
+message CreateOrderResponse {
+  Response response = 1;
 }
 
 message CancelOrderRequest {
-  int64 order_id = 1;
+  string id = 1;
+  string username = 2;
 }
 
 message CancelOrderResponse {
-  bool success = 1;
-  string message = 2;
+  Response response = 1;
 }
+
+
 
