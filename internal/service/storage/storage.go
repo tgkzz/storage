@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"strconv"
+	"sync"
 
 	"github.com/tgkzz/storage/internal/models"
 	"github.com/tgkzz/storage/internal/repository"
@@ -114,8 +115,46 @@ func (s *StorageService) UpdatePriceByItemId(ctx context.Context, id string, new
 	return nil
 }
 
-func (s *StorageService) UpdateQuantityById(id string, newQuantity int) error {
+func (s *StorageService) UpdateQuantityById(ctx context.Context, id string, newQuantity int) error {
 	// TODO: must be realized using update method
+
+	return nil
+}
+
+func (s *StorageService) CreateOrder(ctx context.Context, items []models.Item, username string) error {
+	const op = "storageService.CreateOrder"
+
+	log := s.logger.With(
+		slog.String("op", op),
+		slog.String("username", username),
+	)
+
+	var (
+		wg   sync.WaitGroup
+		errs = make(chan error, len(items))
+	)
+
+	// need to think of items if they are not exist
+	for _, item := range items {
+		wg.Add(1)
+		go func(i models.Item) {
+			defer wg.Done()
+			if _, err := s.itemRepo.GetItemById(ctx, strconv.Itoa(item.Id)); err != nil {
+				log.Error("error getting item", slog.String("error", err.Error()))
+				errs <- err
+			}
+		}(item)
+	}
+
+	wg.Wait()
+
+	for e := range errs {
+		if e != nil {
+			return e
+		}
+	}
+
+	// add function which will decrease count of items
 
 	return nil
 }

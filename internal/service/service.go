@@ -19,7 +19,9 @@ type StorageService interface {
 	DeleteItemById(ctx context.Context, id string) error
 	GetItemById(ctx context.Context, id string) (models.Item, error)
 	UpdatePriceByItemId(ctx context.Context, id string, newPrice float64, currencyId string) error
-	UpdateQuantityById(id string, newQuantity int) error
+	UpdateQuantityById(ctx context.Context, id string, newQuantity int) error
+
+	CreateOrder(ctx context.Context, items []models.Item, username string) error
 }
 
 func NewService(logger *slog.Logger,

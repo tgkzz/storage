@@ -29,7 +29,7 @@ func (s *serverApi) CreateItem(ctx context.Context, request *storage1.CreateItem
 
 	// maybe another ones?
 
-	if err := s.service.Storage.CreateItem(ctx, models.Item{
+	req := models.Item{
 		Id:       int(request.GetItem().GetId()),
 		Name:     request.GetItem().GetName(),
 		Quantity: int(request.GetItem().GetQuantity()),
@@ -37,9 +37,12 @@ func (s *serverApi) CreateItem(ctx context.Context, request *storage1.CreateItem
 			CurrencyId: int(request.GetItem().GetPrice().GetCurrency()),
 			Price:      float64(request.GetItem().GetPrice().GetPrice()),
 		},
-	}); err != nil {
+	}
+
+	if err := s.service.Storage.CreateItem(ctx, req); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
+
 	return &emptypb.Empty{}, nil
 }
 
