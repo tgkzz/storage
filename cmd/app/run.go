@@ -16,7 +16,7 @@ const (
 	env     = "ENV"
 )
 
-func main() {
+func AppRun() {
 	defer func() {
 		if r := recover(); r != nil {
 			slog.Info("Recovered Error after panic", slog.Any("panic", r))
